@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#f5fbff"/>
+  <line x1="600" y1="70" x2="600" y2="180" stroke="#1261a0" stroke-width="8"/>
+  <ellipse cx="600" cy="245" rx="115" ry="85" fill="#7fcfff" fill-opacity="0.45" stroke="#1261a0" stroke-width="8"/>
+  <line x1="600" y1="310" x2="600" y2="435" stroke="#1261a0" stroke-width="8"/>
+  <circle cx="600" cy="372" r="20" fill="#ff9f1c"/>
+  <rect x="550" y="430" width="100" height="190" fill="#fff" stroke="#1261a0" stroke-width="7"/>
+  <g font-family="-apple-system, sans-serif" font-size="34" fill="#15324a">
+    <text x="725" y="135">줄 · generateCylinder</text>
+    <text x="725" y="245">유리 종 · generateSphere</text>
+    <text x="725" y="375">추 · generateSphere</text>
+    <text x="725" y="530">소원지 · generateBox</text>
+  </g>
+</svg>
+

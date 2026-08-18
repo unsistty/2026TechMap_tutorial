@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#f6f8fa"/>
+  <rect x="100" y="75" width="1000" height="550" rx="20" fill="#fff" stroke="#8c959f" stroke-width="4"/>
+  <text x="150" y="155" font-family="-apple-system, sans-serif" font-size="43" font-weight="700">Settings → Pages</text>
+  <text x="150" y="255" font-family="-apple-system, sans-serif" font-size="34">Build and deployment</text>
+  <rect x="150" y="295" width="550" height="82" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="4"/>
+  <text x="185" y="347" font-family="-apple-system, sans-serif" font-size="31">Source: GitHub Actions</text>
+  <text x="150" y="485" font-family="-apple-system, sans-serif" font-size="30" fill="#57606a">Actions의 deploy 작업에서 공개 URL을 확인합니다.</text>
+</svg>
+

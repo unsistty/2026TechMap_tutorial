@@ -1,0 +1,16 @@
+@Tutorials(name: "WindGarden") {
+    @Intro(title: "현실의 창문을 작은 정원으로 바꾸기") {
+        ARKit으로 수직면을 찾고 RealityKit으로 후우링을 매단 뒤 SwiftUI로 사용 방법을 안내합니다.
+
+        @Image(source: "windgarden-hero.svg", alt: "창문 앞에 푸른 후우링이 매달린 WindGarden 앱 완성 화면을 나타내는 자리표시 이미지")
+    }
+
+    @Chapter(name: "AR 후우링 만들기") {
+        프로젝트 생성부터 실제 기기 테스트와 GitHub Pages 배포까지 한 흐름으로 완성합니다.
+
+        @Image(source: "furin-parts.svg", alt: "줄, 유리 종, 추, 종이 소원지로 구성된 후우링 부품 그림")
+
+        @TutorialReference(tutorial: "doc:창문에-AR-후우링-매달기")
+    }
+}
+

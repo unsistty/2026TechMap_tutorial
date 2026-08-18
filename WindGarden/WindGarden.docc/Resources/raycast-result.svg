@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#edf8ff"/>
+  <rect x="650" y="80" width="420" height="540" fill="#c7ebff" stroke="#3279a8" stroke-width="10"/>
+  <circle cx="420" cy="350" r="22" fill="#ff7b00"/>
+  <line x1="420" y1="350" x2="785" y2="295" stroke="#ff7b00" stroke-width="10" stroke-dasharray="20 12"/>
+  <circle cx="785" cy="295" r="24" fill="#175f9e"/>
+  <text x="100" y="115" font-family="-apple-system, sans-serif" font-size="38" fill="#15324a">화면 터치 → Raycast → 수직면의 월드 좌표</text>
+  <text x="680" y="670" font-family="-apple-system, sans-serif" font-size="30" fill="#15324a">ARPlaneAnchor.Classification.window 우선</text>
+</svg>
+

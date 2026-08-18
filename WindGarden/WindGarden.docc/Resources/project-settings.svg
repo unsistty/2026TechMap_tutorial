@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#f2f4f7"/>
+  <rect x="90" y="70" width="1020" height="560" rx="18" fill="#fff" stroke="#9aa4b2" stroke-width="4"/>
+  <text x="150" y="170" font-family="-apple-system, sans-serif" font-size="45" font-weight="700">Target → Info</text>
+  <text x="150" y="270" font-family="-apple-system, sans-serif" font-size="36">Privacy - Camera Usage Description</text>
+  <rect x="150" y="315" width="900" height="90" rx="8" fill="#eaf5ff" stroke="#3282c4" stroke-width="3"/>
+  <text x="180" y="372" font-family="-apple-system, sans-serif" font-size="29">창문을 인식하고 AR 후우링을 매달기 위해 카메라를 사용합니다.</text>
+  <text x="150" y="540" font-family="-apple-system, sans-serif" font-size="31" fill="#59636e">이 자리표시자를 Xcode 설정 캡처로 교체하세요.</text>
+</svg>
+

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#b8d8e8"/>
+  <rect x="170" y="55" width="860" height="590" rx="55" fill="#263744"/>
+  <rect x="205" y="90" width="790" height="520" rx="25" fill="#90b8c8"/>
+  <rect x="325" y="155" width="550" height="350" fill="#d8f0fa" stroke="#fff" stroke-width="10"/>
+  <path d="M420 330 C500 260, 700 260, 780 330" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"/>
+  <text x="385" y="565" font-family="-apple-system, sans-serif" font-size="34" fill="#fff">기기를 움직여 수직면을 찾으세요</text>
+</svg>
+

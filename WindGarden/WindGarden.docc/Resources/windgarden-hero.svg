@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" fill="#dff4ff"/>
+  <rect x="120" y="80" width="960" height="540" rx="20" fill="#ffffff" stroke="#457b9d" stroke-width="18"/>
+  <line x1="600" y1="90" x2="600" y2="610" stroke="#457b9d" stroke-width="14"/>
+  <line x1="130" y1="350" x2="1070" y2="350" stroke="#457b9d" stroke-width="14"/>
+  <line x1="820" y1="90" x2="820" y2="210" stroke="#175f9e" stroke-width="7"/>
+  <ellipse cx="820" cy="250" rx="72" ry="58" fill="#79c7ff" fill-opacity="0.62" stroke="#175f9e" stroke-width="7"/>
+  <line x1="820" y1="300" x2="820" y2="410" stroke="#175f9e" stroke-width="7"/>
+  <circle cx="820" cy="337" r="14" fill="#ff9f1c"/>
+  <rect x="785" y="405" width="70" height="155" rx="6" fill="#f8fdff" stroke="#175f9e" stroke-width="5"/>
+  <text x="70" y="665" font-family="-apple-system, sans-serif" font-size="38" fill="#15324a">실제 완성 화면으로 교체: windgarden-hero.png</text>
+</svg>
+
