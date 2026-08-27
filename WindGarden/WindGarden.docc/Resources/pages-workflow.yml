@@ -45,6 +45,7 @@ jobs:
             "$ARCHIVE_PATH" \
             --output-path .build/site \
             --hosting-base-path "$REPOSITORY_NAME"
+          printf '{}\n' > .build/site/theme-settings.json
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

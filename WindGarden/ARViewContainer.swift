@@ -279,10 +279,10 @@ struct ARViewContainer: UIViewRepresentable {
 
             // 3. 유리 종 안쪽에서 아래로 이어지는 줄
             let innerString = ModelEntity(
-                mesh: .generateCylinder(height: 0.15, radius: 0.002),
+                mesh: .generateCylinder(height: 0.20, radius: 0.002),
                 materials: [blue]
             )
-            innerString.position.y = -0.24
+            innerString.position.y = -0.26
 
             // 4. 바람이 불면 유리 종을 치는 작은 추
             let clapper = ModelEntity(

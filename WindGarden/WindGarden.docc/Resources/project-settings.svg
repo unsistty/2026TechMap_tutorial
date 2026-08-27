@@ -5,6 +5,7 @@
   <text x="150" y="270" font-family="-apple-system, sans-serif" font-size="36">Privacy - Camera Usage Description</text>
   <rect x="150" y="315" width="900" height="90" rx="8" fill="#eaf5ff" stroke="#3282c4" stroke-width="3"/>
   <text x="180" y="372" font-family="-apple-system, sans-serif" font-size="29">창문을 인식하고 AR 후우링을 매달기 위해 카메라를 사용합니다.</text>
-  <text x="150" y="540" font-family="-apple-system, sans-serif" font-size="31" fill="#59636e">이 자리표시자를 Xcode 설정 캡처로 교체하세요.</text>
+  <circle cx="178" cy="520" r="16" fill="#2da44e"/>
+  <path d="M169 520 L176 527 L189 511" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="215" y="530" font-family="-apple-system, sans-serif" font-size="31" fill="#59636e">카메라 접근 전에 이 키가 Target에 포함되어야 합니다.</text>
 </svg>
-

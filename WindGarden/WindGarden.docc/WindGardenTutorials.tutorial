@@ -2,15 +2,34 @@
     @Intro(title: "현실의 창문을 작은 정원으로 바꾸기") {
         ARKit으로 수직면을 찾고 RealityKit으로 후우링을 매단 뒤 SwiftUI로 사용 방법을 안내합니다.
 
-        @Image(source: "windgarden-hero.svg", alt: "창문 앞에 푸른 후우링이 매달린 WindGarden 앱 완성 화면을 나타내는 자리표시 이미지")
+        **예상 소요 시간:** 75분
+
+        **선행 지식:** Swift의 기본 문법과 SwiftUI 화면 구성의 기초를 알고, Xcode에서 iOS App 프로젝트를 생성·실행해 본 경험이 있으면 좋습니다. ARKit과 RealityKit은 처음이어도 됩니다.
+
+        @Image(source: "windgarden-hero.svg", alt: "네 칸 창문 앞에 푸른 후우링이 매달린 WindGarden 앱 완성 화면")
     }
 
-    @Chapter(name: "AR 후우링 만들기") {
-        프로젝트 생성부터 실제 기기 테스트와 GitHub Pages 배포까지 한 흐름으로 완성합니다.
+    @Chapter(name: "AR 프로젝트 시작하기") {
+        SwiftUI 앱을 만들고 RealityKit 화면과 ARKit의 창문 우선 raycast를 연결합니다.
 
-        @Image(source: "furin-parts.svg", alt: "줄, 유리 종, 추, 종이 소원지로 구성된 후우링 부품 그림")
+        @Image(source: "raycast-result.svg", alt: "화면 터치점에서 수직 창문으로 이어지는 raycast 개념도")
 
-        @TutorialReference(tutorial: "doc:창문에-AR-후우링-매달기")
+        @TutorialReference(tutorial: "doc:set-up-windgarden-ar")
+    }
+
+    @Chapter(name: "후우링 만들고 흔들기") {
+        창문 상단 좌표를 구하고 기본 메시로 만든 후우링에 바람 애니메이션을 더합니다.
+
+        @Image(source: "furin-animation.svg", alt: "서로 다른 속도와 각도로 흔들리는 후우링 애니메이션")
+
+        @TutorialReference(tutorial: "doc:build-and-animate-furin")
+    }
+
+    @Chapter(name: "완성 앱 검증하기") {
+        SwiftUI 안내를 더한 뒤 실제 기기와 DocC 빌드에서 최종 결과를 검증합니다.
+
+        @Image(source: "device-result.svg", alt: "SwiftUI 안내 카드와 AR 후우링이 함께 보이는 완성 화면")
+
+        @TutorialReference(tutorial: "doc:verify-windgarden")
     }
 }
-

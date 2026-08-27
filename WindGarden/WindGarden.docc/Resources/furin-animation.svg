@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect width="1200" height="700" rx="28" fill="#f4fbff"/>
+  <text x="72" y="82" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="38" font-weight="700" fill="#15324a">SceneEvents.Update로 만드는 서로 다른 흔들림</text>
+  <path d="M150 475 C260 285 365 610 485 410 C600 220 715 565 835 375 C935 215 1035 460 1110 300" fill="none" stroke="#8fc9ea" stroke-width="9"/>
+  <g transform="translate(330 125) rotate(-6 0 0)">
+    <line x1="0" y1="0" x2="0" y2="105" stroke="#1261a0" stroke-width="8"/>
+    <ellipse cx="0" cy="160" rx="74" ry="57" fill="#7fcfff" fill-opacity="0.55" stroke="#1261a0" stroke-width="8"/>
+    <line x1="0" y1="210" x2="0" y2="340" stroke="#1261a0" stroke-width="7"/>
+    <circle cx="0" cy="270" r="15" fill="#ff9f1c"/>
+    <rect x="-37" y="330" width="74" height="155" rx="6" fill="#fff" stroke="#1261a0" stroke-width="6"/>
+  </g>
+  <g transform="translate(785 125) rotate(7 0 0)">
+    <line x1="0" y1="0" x2="0" y2="105" stroke="#1261a0" stroke-width="8"/>
+    <ellipse cx="0" cy="160" rx="74" ry="57" fill="#7fcfff" fill-opacity="0.55" stroke="#1261a0" stroke-width="8"/>
+    <line x1="0" y1="210" x2="0" y2="340" stroke="#1261a0" stroke-width="7"/>
+    <circle cx="0" cy="270" r="15" fill="#ff9f1c"/>
+    <rect x="-37" y="330" width="74" height="155" rx="6" fill="#fff" stroke="#1261a0" stroke-width="6" transform="rotate(14 0 330)"/>
+  </g>
+  <path d="M202 205 C155 255 155 330 202 380" fill="none" stroke="#ff8a00" stroke-width="8" stroke-linecap="round"/>
+  <path d="M180 365 L205 390 L225 355" fill="none" stroke="#ff8a00" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M915 205 C962 255 962 330 915 380" fill="none" stroke="#ff8a00" stroke-width="8" stroke-linecap="round"/>
+  <path d="M892 355 L912 390 L938 365" fill="none" stroke="#ff8a00" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="122" y="650" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="30" fill="#15324a">몸체: 느리고 작은 Z축 회전</text>
+  <text x="690" y="650" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="30" fill="#15324a">소원지: 빠르고 큰 Y축 회전</text>
+</svg>

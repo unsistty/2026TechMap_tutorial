@@ -6,6 +6,8 @@
   <ellipse cx="600" cy="300" rx="62" ry="49" fill="#74c8ff" fill-opacity="0.6" stroke="#1261a0" stroke-width="7"/>
   <line x1="600" y1="345" x2="600" y2="440" stroke="#1261a0" stroke-width="7"/>
   <rect x="566" y="435" width="68" height="135" fill="#fff" stroke="#1261a0" stroke-width="5"/>
-  <text x="75" y="665" font-family="-apple-system, sans-serif" font-size="34" fill="#15324a">실제 iPhone/iPad의 완성 화면 캡처로 교체하세요.</text>
+  <rect x="455" y="94" width="290" height="72" rx="25" fill="#ffffff" fill-opacity="0.86"/>
+  <text x="482" y="124" font-family="-apple-system, sans-serif" font-size="21" font-weight="700" fill="#15324a">창문 위에 후우링을</text>
+  <text x="518" y="151" font-family="-apple-system, sans-serif" font-size="21" fill="#15324a">매달아 보세요</text>
+  <text x="75" y="665" font-family="-apple-system, sans-serif" font-size="34" fill="#15324a">안내 UI는 SwiftUI, AR 장면은 RealityKit이 담당합니다.</text>
 </svg>
-

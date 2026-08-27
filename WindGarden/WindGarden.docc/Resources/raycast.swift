@@ -1,3 +1,17 @@
+// ARViewContainer 구조체의 첫 줄 안에 추가합니다.
+func makeCoordinator() -> Coordinator {
+    Coordinator()
+}
+
+// makeUIView(context:)의 return arView 바로 앞에 추가합니다.
+let tapGesture = UITapGestureRecognizer(
+    target: context.coordinator,
+    action: #selector(Coordinator.handleTap(_:))
+)
+arView.addGestureRecognizer(tapGesture)
+context.coordinator.start(using: arView)
+
+// ARViewContainer 구조체 안에서 updateUIView 다음에 추가합니다.
 final class Coordinator: NSObject {
     private weak var arView: ARView?
 
@@ -48,4 +62,3 @@ final class Coordinator: NSObject {
         ).first
     }
 }
-

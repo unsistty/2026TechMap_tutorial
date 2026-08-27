@@ -28,10 +28,10 @@ private func makeFurin() -> (furin: Entity, paper: Entity) {
     glassBell.scale = [1, 0.9, 1]
 
     let innerString = ModelEntity(
-        mesh: .generateCylinder(height: 0.15, radius: 0.002),
+        mesh: .generateCylinder(height: 0.20, radius: 0.002),
         materials: [blue]
     )
-    innerString.position.y = -0.24
+    innerString.position.y = -0.26
 
     let clapper = ModelEntity(
         mesh: .generateSphere(radius: 0.012),
@@ -54,4 +54,3 @@ private func makeFurin() -> (furin: Entity, paper: Entity) {
     furin.addChild(paper)
     return (furin, paper)
 }
-

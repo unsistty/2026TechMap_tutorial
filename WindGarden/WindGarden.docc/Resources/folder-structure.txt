@@ -11,10 +11,11 @@ WindGarden/
     └── WindGarden.docc/
         ├── WindGarden.md
         ├── WindGardenTutorials.tutorial
-        ├── 창문에-AR-후우링-매달기.tutorial
+        ├── set-up-windgarden-ar.tutorial
+        ├── build-and-animate-furin.tutorial
+        ├── verify-windgarden.tutorial
         └── Resources/
             ├── *.swift
             ├── pages-workflow.yml
             ├── docs-build.sh
             └── *.svg
-

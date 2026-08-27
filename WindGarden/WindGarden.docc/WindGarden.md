@@ -14,4 +14,6 @@
 
 ### 튜토리얼
 
-- <doc:창문에-AR-후우링-매달기>
+- <doc:set-up-windgarden-ar>
+- <doc:build-and-animate-furin>
+- <doc:verify-windgarden>

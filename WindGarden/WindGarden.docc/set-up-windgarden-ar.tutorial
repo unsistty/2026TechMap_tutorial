@@ -1,0 +1,114 @@
+@Tutorial(time: 30) {
+    @Intro(title: "WindGarden AR 프로젝트 시작하기") {
+        SwiftUI 앱에 RealityKit의 AR 화면을 연결하고, ARKit으로 창문을 우선 탐색하는 세 단계 raycast를 구현합니다. 각 단계가 끝날 때 바로 빌드하고 실제 기기에서 결과를 확인합니다.
+
+        **예상 소요 시간:** 30분
+
+        **선행 지식:** Swift의 구조체·프로퍼티·함수 문법과 SwiftUI의 `View`, `body` 기초를 알고 있으면 좋습니다. Xcode에서 iOS App 프로젝트를 만들고 실제 기기에 한 번 실행해 본 경험을 권장합니다. ARKit과 RealityKit 경험은 없어도 됩니다.
+
+        @Image(source: "windgarden-hero.svg", alt: "창문 앞에 푸른 후우링이 매달린 WindGarden 앱의 완성 모습")
+    }
+
+    @Section(title: "프로젝트 준비") {
+        @ContentAndMedia {
+            먼저 SwiftUI 앱의 뼈대를 만들고 카메라 권한을 설정합니다. `SwiftUI`는 앱의 화면과 생명 주기를 담당하고, `ARKit`은 카메라 기반 월드 트래킹·평면 감지·raycast를 담당합니다. `RealityKit`은 `ARView`, 3D 엔티티, 재질, 장면 업데이트를 담당하며, `Combine`은 RealityKit의 프레임 업데이트 구독을 보관하는 데 사용합니다.
+
+            @Image(source: "project-settings.svg", alt: "Xcode Target Info에서 Camera Usage Description을 추가한 예시")
+        }
+
+        @Steps {
+            @Step {
+                Xcode에서 **File > New > Project**를 선택하고 iOS의 **App** 템플릿을 만듭니다. Product Name은 `WindGarden`, Interface는 `SwiftUI`, Language는 `Swift`로 설정하고 deployment target은 iOS 18.0 이상으로 지정합니다. ARKit을 지원하는 실제 기기에서 실행할 수 있도록 Team과 고유한 Bundle Identifier도 지정합니다.
+
+                생성 직후 `WindGardenApp.swift` 전체가 다음과 같은지 확인합니다. `@main`이 앱의 진입점이고 `WindowGroup`이 첫 SwiftUI 화면인 `ContentView`를 엽니다.
+
+                @Code(name: "WindGardenApp.swift — 파일 전체", file: project-created.swift)
+            }
+
+            @Step {
+                `ContentView.swift`의 기존 코드를 다음 시작 화면으로 바꿉니다. 지금 단계에서는 앱이 정상 실행되는지만 확인합니다.
+
+                @Code(name: "ContentView.swift — 파일 전체", file: content-view-start.swift)
+
+                **확인:** iOS Simulator 또는 실제 기기에서 실행했을 때 흰 화면 중앙에 “WindGarden”이 보이면 앱의 SwiftUI 진입점이 올바릅니다. AR 기능을 추가한 뒤부터는 실제 기기를 사용해야 합니다.
+            }
+
+            @Step {
+                Project navigator에서 `WindGarden` 타깃을 선택하고 **Info** 탭의 Custom iOS Target Properties에 **Privacy - Camera Usage Description**을 추가합니다. 값은 “창문을 인식하고 AR 후우링을 매달기 위해 카메라를 사용합니다.”로 입력합니다.
+
+                이 설정은 빌드 설정의 `INFOPLIST_KEY_NSCameraUsageDescription`으로도 추가할 수 있습니다. 키가 없으면 카메라 접근 순간 앱이 종료됩니다. 사용자가 권한을 거부하면 **설정 > 개인정보 보호 및 보안 > 카메라 > WindGarden**에서 다시 허용합니다.
+            }
+
+            @Step {
+                최종 카탈로그와 프로젝트의 폴더 구조를 다음처럼 준비합니다. Xcode 16 이상의 synchronized group 프로젝트라면 `WindGarden` 폴더 아래 만든 `.docc` 카탈로그가 자동으로 타깃 리소스에 포함됩니다. 구형 프로젝트라면 카탈로그를 Xcode로 드래그하고 WindGarden target membership을 선택합니다. `WindGarden.md`는 카탈로그 시작 페이지, `WindGardenTutorials.tutorial`은 세 Chapter의 목차, 세 개의 영문 `.tutorial` 파일은 전체 실습을 나누어 담습니다. `Resources`의 단계별 코드는 `@Code`, 이미지는 `@Image`가 불러옵니다.
+
+                @Code(name: "WindGarden — 전체 폴더 구조", file: folder-structure.txt)
+            }
+        }
+    }
+
+
+    @Section(title: "RealityKit 화면을 SwiftUI에 연결하기") {
+        @ContentAndMedia {
+            RealityKit의 `ARView`는 UIKit 뷰이므로 SwiftUI 계층에 바로 선언할 수 없습니다. `UIViewRepresentable`이 UIKit 뷰의 생성과 갱신을 SwiftUI 생명 주기에 연결합니다.
+
+            @Image(source: "coaching-overlay.svg", alt: "수직면을 찾도록 기기를 움직이라고 안내하는 AR coaching overlay")
+        }
+
+        @Steps {
+            @Step {
+                `WindGarden` 그룹에서 **File > New > File > Swift File**을 선택해 `ARViewContainer.swift`를 만듭니다. 파일 전체에 아래 코드를 입력합니다.
+
+                `makeUIView(context:)`는 `ARView`를 한 번 생성합니다. 자동 세션 설정은 끄고 `ARWorldTrackingConfiguration`을 직접 실행합니다. `.vertical`은 벽·창문·창틀 같은 수직면만 감지하며, `.automatic` 환경 텍스처링은 카메라 주변 색과 빛을 3D 오브젝트 반사에 활용합니다. `updateUIView`는 SwiftUI 상태 변경 때 호출되지만 지금은 갱신할 속성이 없습니다.
+
+                @Code(name: "ARViewContainer.swift — import 아래부터 파일 전체", file: arview-bridge.swift)
+            }
+
+            @Step {
+                `ContentView.swift`의 `Text("WindGarden")`를 `ARViewContainer()`로 바꾸고 안전 영역까지 카메라 화면을 확장합니다.
+
+                @Code(name: "ContentView.swift — 파일 전체", file: content-view-ar.swift)
+
+                **확인:** ARKit 지원 실제 iPhone 또는 iPad를 Mac에 연결하고 실행합니다. 카메라 권한을 허용했을 때 전체 화면에 카메라 영상이 보이면 SwiftUI와 RealityKit 연결이 완료된 것입니다.
+            }
+
+            @Step {
+                왜 Simulator가 아닌 실제 기기가 필요한지 확인합니다. `ARWorldTrackingConfiguration`은 실제 카메라 프레임, 카메라 보정 정보, 자이로스코프·가속도계의 움직임을 결합해 현실 좌표계를 만듭니다. Simulator에는 이 연속 센서 입력과 실제 공간이 없으므로 창문 분류, 평면 geometry, 안정적인 raycast를 검증할 수 없습니다.
+
+                실제 기기의 **Settings > General > About**에서 기기 모델을 확인하고, Apple의 ARKit 지원 기기인지 확인합니다. 밝고 특징점이 많은 실내에서 창문 주위 프레임까지 천천히 비추면 추적이 가장 안정적입니다.
+            }
+        }
+    }
+
+
+    @Section(title: "수직면 탐색과 화면 터치 처리하기") {
+        @ContentAndMedia {
+            `ARCoachingOverlayView`는 사용자가 충분한 수직면을 찾을 때까지 표준 안내 UI를 표시합니다. `Coordinator`는 SwiftUI 값 타입과 UIKit의 target-action 패턴 사이에서 탭 이벤트를 중계합니다.
+
+            @Image(source: "raycast-result.svg", alt: "화면 터치점에서 수직 창문으로 raycast 광선이 이어지는 개념도")
+        }
+
+        @Steps {
+            @Step {
+                `ARViewContainer.swift`의 `makeUIView(context:)`에서 `arView.session.run(configuration)` 다음, `return arView` 전에 coaching overlay 코드를 추가합니다. `goal = .verticalPlane`은 바닥이 아닌 수직면 탐색 동작을 유도합니다. `autoresizingMask`는 기기 회전이나 SwiftUI 레이아웃 변경에도 overlay가 `ARView`를 덮게 합니다. 이 단계는 독립적으로 컴파일됩니다.
+
+                @Code(name: "ARViewContainer.swift — makeUIView 내부에 추가", file: coaching-and-tap.swift)
+            }
+
+            @Step {
+                아래 코드의 세 부분을 차례로 추가합니다. 구조체 첫 줄 안에는 `makeCoordinator()`를, `makeUIView(context:)`의 `return arView` 바로 앞에는 탭 제스처와 `start(using:)` 호출을, `updateUIView` 다음에는 `Coordinator` 전체를 넣습니다. `UITapGestureRecognizer`가 Objective-C target-action을 사용하므로 처리 메서드에 `@objc`를 붙입니다.
+
+                `.existingPlaneGeometry`로 찾은 결과 중 `classification`이 `.window`인 면을 먼저 반환하고, 없으면 첫 일반 수직면, 마지막에는 `.estimatedPlane`을 사용합니다. 세 단계 fallback 덕분에 ARKit이 유리를 창문으로 분류하지 못해도 창틀이나 벽에 배치할 수 있습니다. 이 단계의 세 부분을 모두 추가한 뒤 빌드하면 중간 컴파일 오류가 남지 않습니다. **확인:** 실제 기기에서 창문을 비춘 뒤 화면을 탭합니다. Xcode debug console에 `배치할 월드 좌표`가 출력되면 제스처와 raycast가 연결되었고, 아무 면도 찾지 못하면 오류 haptic이 발생합니다.
+
+                @Code(name: "ARViewContainer.swift — Coordinator와 탭 처리 추가", file: raycast.swift)
+            }
+
+            @Step {
+                평면 인식이 실패하면 조명을 밝게 하고, 투명 유리만 비추지 말고 대비가 있는 창틀과 주변 벽을 함께 화면에 넣습니다. 기기를 빠르게 흔들지 말고 좌우로 천천히 이동하며 coaching overlay가 사라질 때까지 기다립니다.
+
+                계속 실패하면 `ARWorldTrackingConfiguration.isSupported`가 `true`인 기기인지 확인하고, 앱을 완전히 종료한 후 세션을 다시 시작합니다. 흰 벽처럼 무늬가 없는 표면에는 포스터 가장자리 같은 시각적 특징이 도움이 됩니다.
+            }
+        }
+    }
+
+}

@@ -8,6 +8,7 @@
   <line x1="820" y1="300" x2="820" y2="410" stroke="#175f9e" stroke-width="7"/>
   <circle cx="820" cy="337" r="14" fill="#ff9f1c"/>
   <rect x="785" y="405" width="70" height="155" rx="6" fill="#f8fdff" stroke="#175f9e" stroke-width="5"/>
-  <text x="70" y="665" font-family="-apple-system, sans-serif" font-size="38" fill="#15324a">실제 완성 화면으로 교체: windgarden-hero.png</text>
+  <rect x="180" y="116" width="430" height="64" rx="24" fill="#ffffff" fill-opacity="0.84"/>
+  <text x="215" y="158" font-family="-apple-system, sans-serif" font-size="28" font-weight="700" fill="#15324a">창문을 비춘 뒤 상단을 터치하세요</text>
+  <text x="70" y="665" font-family="-apple-system, sans-serif" font-size="38" fill="#15324a">현실의 창문을 작은 바람 정원으로 바꿔 보세요.</text>
 </svg>
-

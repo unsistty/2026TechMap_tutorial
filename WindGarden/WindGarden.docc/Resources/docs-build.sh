@@ -13,5 +13,6 @@ xcrun docc process-archive transform-for-static-hosting \
   --output-path .build/site/WindGarden \
   --hosting-base-path WindGarden
 
-python3 -m http.server 8000 --directory .build/site
+printf '{}\n' > .build/site/WindGarden/theme-settings.json
 
+python3 -m http.server 8000 --directory .build/site

@@ -1,0 +1,103 @@
+@Tutorial(time: 30) {
+    @Intro(title: "후우링을 만들고 바람에 흔들기") {
+        창문 상단의 월드 좌표를 계산하고, RealityKit 기본 메시로 후우링을 조립한 뒤 프레임 업데이트에 사인 함수를 적용해 자연스럽게 흔듭니다.
+
+        **예상 소요 시간:** 30분
+
+        **선행 지식:** 앞 Chapter의 “WindGarden AR 프로젝트 시작하기”를 완료해 `ARViewContainer`, `Coordinator`, 수직면 raycast가 동작하는 프로젝트가 필요합니다.
+
+        @Image(source: "furin-parts.svg", alt: "줄, 유리 종, 추, 종이 소원지로 조립한 후우링")
+    }
+
+    @Section(title: "창문 상단의 현실 좌표 계산하기") {
+        @ContentAndMedia {
+            raycast 좌표는 사용자가 누른 지점입니다. 창문으로 분류된 `ARPlaneAnchor`에는 감지한 평면의 geometry가 있으므로, 각 vertex를 월드 좌표로 변환해 가장 높은 Y를 구하면 창문 상단에 후우링을 매달 수 있습니다.
+
+            @Image(source: "window-top.svg", alt: "창문 평면의 로컬 꼭짓점을 월드 좌표로 변환해 가장 높은 Y를 선택하는 과정")
+        }
+
+        @Steps {
+            @Step {
+                `Coordinator.handleTap(_:)`에서 `result.worldTransform`으로 위치를 만든 직후, 단순 `position`과 `print`를 아래 코드로 교체합니다. 같은 `Coordinator`의 `findVerticalSurface` 아래에는 `findTopY(of:)`를 추가합니다.
+
+                `ARPlaneGeometry.vertices`의 좌표는 anchor 기준 로컬 좌표입니다. `(x, y, z, 1)` 동차 좌표를 `window.transform`과 곱해 월드 좌표로 바꾸고, 모든 월드 Y 중 최댓값을 선택합니다. 창문으로 분류된 경우에만 상단 보정을 적용하므로 일반 수직면 fallback은 사용자가 터치한 높이를 유지합니다.
+
+                @Code(name: "ARViewContainer.swift — handleTap 위치 계산부와 findTopY 메서드", file: window-top.swift)
+            }
+
+            @Step {
+                같은 코드의 `cameraDirection` 계산을 살펴봅니다. raycast 지점이 정확히 벽면에 놓이면 3D 메시 일부가 벽 뒤에 묻히거나 z-fighting이 생길 수 있습니다. 카메라와 배치점의 수평 방향 벡터를 정규화한 뒤 2.5cm를 더해 오브젝트를 사용자 쪽으로 당깁니다. Y를 0으로 만든 것은 창문 상단 높이가 바뀌지 않게 하기 위해서입니다.
+
+                카메라가 배치점과 거의 같은 수평 위치에 있을 때 0 벡터를 정규화하지 않도록 길이가 `0.01`보다 큰지 먼저 검사합니다.
+            }
+
+            @Step {
+                아직 3D 모델을 호출하지 않고 `handleTap(_:)`의 위치 보정 다음에 `print("배치할 월드 좌표:", hangingPosition)`을 추가해 빌드합니다. 실제 기기에서 창문 중앙과 상단을 각각 탭했을 때, 창문으로 분류된 두 탭의 Y 좌표가 같은 상단 값으로 출력되면 좌표 보정이 올바릅니다. 다음 Section에서 모델 생성 함수와 호출을 한 단계 안에 연결하므로 지금도 컴파일 오류 없이 결과를 확인할 수 있습니다.
+            }
+        }
+    }
+
+
+    @Section(title: "기본 메시로 후우링 만들고 고정하기") {
+        @ContentAndMedia {
+            외부 USDZ 파일 없이 `generateCylinder`, `generateSphere`, `generateBox`와 `SimpleMaterial`만으로 줄, 유리 종, 추, 종이 소원지를 만듭니다. 모든 길이는 RealityKit의 미터 단위입니다.
+
+            @Image(source: "furin-parts.svg", alt: "원기둥 줄, 구형 유리 종, 구형 추, 상자형 종이로 조립한 후우링")
+        }
+
+        @Steps {
+            @Step {
+                `Coordinator`의 창문 탐색 메서드 아래에 `makeFurin()`을 먼저 추가합니다. 생성한 `ModelEntity`들의 로컬 Y를 음수로 내려, anchor가 매다는 줄의 꼭대기가 되도록 구성합니다. 유리 종은 반투명한 청색 `SimpleMaterial`을 입힌 구를 Y축으로 0.9배 눌러 만듭니다. 위쪽 줄은 높이 10cm, 안쪽 줄은 높이 20cm로 만들어 유리 종부터 종이 소원지까지 끊어져 보이지 않게 연결합니다. 추는 작은 주황색 구, 소원지는 깊이 3mm의 얇은 상자입니다. 종이 자체를 별도 `Entity`에 넣어 나중에 몸체보다 빠르게 회전시킬 수 있습니다.
+
+                @Code(name: "ARViewContainer.swift — Coordinator 내부에 추가", file: make-furin.swift)
+            }
+
+            @Step {
+                `makeFurin()` 아래에 `addFurin(at:facing:to:)`를 추가합니다. `AnchorEntity(world:)`는 AR 세션의 월드 좌표에 부모 anchor를 만들고, 후우링의 모든 부품은 그 자식이 됩니다. 따라서 카메라가 이동해도 후우링은 현실 공간의 같은 위치에 남습니다.
+
+                변수명은 처음부터 `furinParts`, `furin`, `paper`로 통일합니다. `atan2`로 카메라까지의 방향을 Y축 회전각으로 바꿔 소원지 정면이 처음 배치한 사용자를 향하도록 합니다. 이 회전은 이후 흔들림의 기준 회전으로도 사용합니다.
+
+                @Code(name: "ARViewContainer.swift — makeFurin 다음에 추가", file: place-anchor.swift)
+            }
+
+            @Step {
+                앞 Section에서 넣은 임시 `print`를 지우고, 같은 자리에 아래 호출과 성공 haptic을 추가합니다. `makeFurin`과 `addFurin`을 이미 정의했기 때문에 이 단계도 바로 컴파일됩니다. **확인:** 실제 기기에서 창문이나 벽을 충분히 탐색하고 탭합니다. 파란 유리 종과 흰 종이가 면 앞에 나타나고, 창문 분류에 성공했으면 누른 높이와 관계없이 감지된 창문 상단으로 이동해야 합니다.
+
+                @Code(name: "ARViewContainer.swift — handleTap 위치 보정 다음에 추가", file: add-furin-call.swift)
+
+                오브젝트가 반대 방향을 보인다면 모델의 정면 축과 회전 부호를 확인합니다. 이 튜토리얼의 얇은 `generateBox`는 양면이 거의 같지만, 한쪽에 텍스처를 추가했다면 `angle + .pi` 또는 `-angle`이 필요할 수 있습니다. 배치가 벽에 묻히면 카메라 방향 보정값 `0.025`를 `0.04`처럼 조금 늘립니다.
+            }
+        }
+    }
+
+
+    @Section(title: "바람에 흔들리는 애니메이션 만들기") {
+        @ContentAndMedia {
+            RealityKit은 각 렌더 프레임마다 `SceneEvents.Update`를 보냅니다. `Combine` 구독을 유지하면서 누적 시간에 사인 함수를 적용하면 반복이 끊기지 않는 부드러운 흔들림을 만들 수 있습니다.
+
+            @Image(source: "furin-animation.svg", alt: "후우링 몸체와 종이 소원지가 서로 다른 속도와 각도로 흔들리는 애니메이션 흐름")
+        }
+
+        @Steps {
+            @Step {
+                `Coordinator` 맨 위에 애니메이션 정보 구조체, 배열, 시간, subscription을 추가합니다. 기존 `start(using:)`를 구독을 만드는 버전으로 교체하고, 구조체 맨 아래에 `animateFurins(deltaTime:)`를 추가합니다.
+
+                `animationSubscription`을 프로퍼티로 보관하지 않으면 생성 직후 구독이 해제되어 업데이트가 멈춥니다. `[weak self]`는 scene subscription과 coordinator 사이의 강한 순환 참조를 피합니다. 몸체는 Z축으로 작게, 종이는 Y축으로 더 빠르고 크게 움직입니다.
+
+                @Code(name: "ARViewContainer.swift — Coordinator 프로퍼티, start, 마지막 메서드", file: animate-furin.swift)
+            }
+
+            @Step {
+                `addFurin`의 `arView.scene.addAnchor(anchor)` 다음에 아래 코드를 추가해 새 후우링을 애니메이션 배열에 등록합니다. 앞 Section에서 이미 `furinParts`, `furin`, `paper`로 변수명을 통일했으므로 그대로 연결됩니다. `randomOffset`이 여러 후우링의 위상을 다르게 만들어 모두 똑같이 흔들리는 인공적인 느낌을 줄입니다.
+
+                @Code(name: "ARViewContainer.swift — addFurin에서 anchor 추가 다음", file: register-animation.swift)
+            }
+
+            @Step {
+                `sin`은 항상 -1과 1 사이를 왕복합니다. `animationTime * 1.35`는 속도, `* 0.055`는 몸체의 최대 회전 라디안입니다. 종이는 속도 `2.1`, 진폭 `0.24`를 사용해 바람을 더 크게 받는 느낌을 냅니다. `originalRotation * 흔들림 회전` 순서를 지켜 카메라를 향한 기준 방향을 잃지 않게 합니다.
+
+                **확인:** 같은 창문에 여러 번 탭합니다. 각 후우링이 현실 위치에 고정된 채 서로 다른 박자로 좌우로 흔들리고, 종이 소원지가 몸체보다 빠르게 펄럭이면 성공입니다.
+            }
+        }
+    }
+}
