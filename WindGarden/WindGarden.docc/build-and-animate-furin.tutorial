@@ -1,102 +1,326 @@
 @Tutorial(time: 30) {
     @Intro(title: "후우링을 만들고 바람에 흔들기") {
-        창문 상단의 월드 좌표를 계산하고, RealityKit 기본 메시로 후우링을 조립한 뒤 프레임 업데이트에 사인 함수를 적용해 자연스럽게 흔듭니다.
+        RealityKit이 제공하는 기본 3D 도형으로 후우링을 만듭니다. 완성한 후우링을 앞에서 찾은 창문 위쪽에 놓고 자연스럽게 흔들리게 합니다.
 
         **예상 소요 시간:** 30분
 
-        **선행 지식:** 앞 Chapter의 “WindGarden AR 프로젝트 시작하기”를 완료해 `ARViewContainer`, `Coordinator`, 수직면 raycast가 동작하는 프로젝트가 필요합니다.
+        **먼저 할 일:** 앞 장의 “WindGarden AR 프로젝트 시작하기”를 끝내야 합니다. 화면을 눌러 창문이나 벽에서 후우링을 매달 위치를 찾을 수 있는 상태로 시작합니다.
 
         @Image(source: "furin-parts.svg", alt: "줄, 유리 종, 추, 종이 소원지로 조립한 후우링")
     }
 
-    @Section(title: "창문 상단의 현실 좌표 계산하기") {
+    @Section(title: "후우링 모양 만들기") {
         @ContentAndMedia {
-            raycast 좌표는 사용자가 누른 지점입니다. 창문으로 분류된 `ARPlaneAnchor`에는 감지한 평면의 geometry가 있으므로, 각 vertex를 월드 좌표로 변환해 가장 높은 Y를 구하면 창문 상단에 후우링을 매달 수 있습니다.
+            지금까지는 후우링을 매달 위치를 찾았습니다. 이제 후우링 모양을 만드는 코드를 새 파일에 작성합니다. 이렇게 하면 카메라를 다루는 코드와 3D 모양을 만드는 코드가 한곳에 섞이지 않아 찾기 쉽습니다.
 
-            @Image(source: "window-top.svg", alt: "창문 평면의 로컬 꼭짓점을 월드 좌표로 변환해 가장 높은 Y를 선택하는 과정")
+            @Image(source: "furin-parts.svg", alt: "줄, 유리 종, 추, 종이 소원지로 이루어진 후우링")
         }
 
         @Steps {
             @Step {
-                `Coordinator.handleTap(_:)`에서 `result.worldTransform`으로 위치를 만든 직후, 단순 `position`과 `print`를 아래 코드로 교체합니다. 같은 `Coordinator`의 `findVerticalSurface` 아래에는 `findTopY(of:)`를 추가합니다.
-
-                `ARPlaneGeometry.vertices`의 좌표는 anchor 기준 로컬 좌표입니다. `(x, y, z, 1)` 동차 좌표를 `window.transform`과 곱해 월드 좌표로 바꾸고, 모든 월드 Y 중 최댓값을 선택합니다. 창문으로 분류된 경우에만 상단 보정을 적용하므로 일반 수직면 fallback은 사용자가 터치한 높이를 유지합니다.
-
-                @Code(name: "ARViewContainer.swift — handleTap 위치 계산부와 findTopY 메서드", file: window-top.swift)
+                Xcode 왼쪽의 파일 목록에서 앱 파일이 들어 있는 그룹을 선택합니다. 위쪽 메뉴에서 **File > New > File > Swift File**을 누르고 파일 이름을 `FurinFactory.swift`로 입력합니다.
             }
 
             @Step {
-                같은 코드의 `cameraDirection` 계산을 살펴봅니다. raycast 지점이 정확히 벽면에 놓이면 3D 메시 일부가 벽 뒤에 묻히거나 z-fighting이 생길 수 있습니다. 카메라와 배치점의 수평 방향 벡터를 정규화한 뒤 2.5cm를 더해 오브젝트를 사용자 쪽으로 당깁니다. Y를 0으로 만든 것은 창문 상단 높이가 바뀌지 않게 하기 위해서입니다.
+                새 파일에 아래 코드를 작성합니다. `furin`은 앞으로 만들 줄, 유리 종, 추, 종이를 모두 담는 큰 상자 역할을 합니다. `paper`는 나중에 종이만 따로 흔들 수 있도록 별도로 만듭니다. `make()`는 완성한 `furin`과 `paper`를 함께 돌려줍니다.
 
-                카메라가 배치점과 거의 같은 수평 위치에 있을 때 0 벡터를 정규화하지 않도록 길이가 `0.01`보다 큰지 먼저 검사합니다.
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-base.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 두 객체에 보이는 모양을 넣지 않았고 `make()`도 사용하지 않았으므로 화면에 아무것도 나타나지 않는 것이 정상입니다.
             }
 
             @Step {
-                아직 3D 모델을 호출하지 않고 `handleTap(_:)`의 위치 보정 다음에 `print("배치할 월드 좌표:", hangingPosition)`을 추가해 빌드합니다. 실제 기기에서 창문 중앙과 상단을 각각 탭했을 때, 창문으로 분류된 두 탭의 Y 좌표가 같은 상단 값으로 출력되면 좌표 보정이 올바릅니다. 다음 Section에서 모델 생성 함수와 호출을 한 단계 안에 연결하므로 지금도 컴파일 오류 없이 결과를 확인할 수 있습니다.
+                `paper` 아래에 파란색 재료를 추가합니다. `SimpleMaterial`은 3D 물체의 색과 겉면 느낌을 정합니다. 거친 정도를 뜻하는 `roughness`는 0에 가까우면 매끄럽고 1에 가까우면 거칠게 보입니다. 금속인지 정하는 `isMetallic`은 `false`로 설정합니다. 이 파란색 재료는 후우링의 줄에 사용합니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-blue.swift,
+                    previousFile: furin-factory-base.swift
+                )
+            }
+
+            @Step {
+                `blue` 아래에 유리 종에 사용할 `glass` 재료를 추가합니다. `red`, `green`, `blue` 값으로 색을 만들고, 투명도를 뜻하는 `alpha`로 안쪽이 얼마나 비칠지 정합니다. `alpha`가 0이면 완전히 투명하고 1이면 전혀 비치지 않습니다. 여기서는 `0.32`를 사용합니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-glass.swift,
+                    previousFile: furin-factory-blue.swift
+                )
+            }
+
+            @Step {
+                `glass` 아래에 주황색 재료 `orange`를 추가합니다. 이 색은 유리 종을 두드리는 작은 추에 사용합니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-orange.swift,
+                    previousFile: furin-factory-glass.swift
+                )
+            }
+
+            @Step {
+                `orange` 아래에 종이 소원지용 재료 `paperColor`를 추가합니다. `alpha`를 `0.96`으로 설정해 거의 비치지 않게 만듭니다. `roughness`는 `0.8`로 설정해 매끄러운 유리보다 거친 종이처럼 보이게 합니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-materials.swift,
+                    previousFile: furin-factory-orange.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 재료를 3D 모양에 사용하지 않아 Xcode가 “사용하지 않은 값”이라는 경고를 보여 줄 수 있습니다. 다음 단계에서 재료를 사용하면 경고가 사라집니다. 화면에 후우링이 나타나지 않는 것도 정상입니다.
+            }
+
+            @Step {
+                `paperColor` 아래, `return` 위에 후우링의 위쪽 줄을 추가합니다. 원기둥을 만드는 `generateCylinder`를 사용하고, `materials: [blue]`로 앞에서 준비한 파란색을 입힙니다. RealityKit에서 길이의 단위는 미터입니다. 따라서 `height: 0.10`은 10cm이고 `radius: 0.002`는 2mm입니다. 원기둥은 정가운데를 기준으로 만들어집니다. 중심을 5cm 아래로 옮기면 10cm 줄의 위쪽 끝이 후우링을 매달 위치에 맞습니다. 마지막으로 `furin.addChild(topString)`을 사용해 줄을 `furin` 안에 넣습니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-top-string.swift,
+                    previousFile: furin-factory-materials.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. `blue` 재료는 줄에 사용했으므로 해당 경고가 사라집니다. 아직 `FurinFactory.make()`를 사용하지 않았기 때문에 화면에 줄이 나타나지 않는 것이 정상입니다.
+            }
+
+            @Step {
+                `furin.addChild(topString)` 아래에 안쪽이 비치는 유리 종을 추가합니다. 구를 만드는 `generateSphere`로 반지름 6.6cm의 공 모양을 만들고 `glass` 재료를 입힙니다. 유리 종을 처음 위치에서 17cm 아래로 옮깁니다. 그다음 위아래 크기인 Y축만 90%로 줄여 종과 비슷한 모양으로 만듭니다. 마지막으로 `furin.addChild(glassBell)`을 사용해 유리 종을 `furin` 안에 넣습니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-glass-bell.swift,
+                    previousFile: furin-factory-top-string.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. `glass` 재료를 사용했으므로 해당 경고가 사라집니다. 아직 `FurinFactory.make()`를 사용하지 않았기 때문에 화면에 유리 종이 나타나지 않는 것이 정상입니다.
+            }
+
+            @Step {
+                `furin.addChild(glassBell)` 아래에 유리 종 안쪽의 줄을 추가합니다. `generateCylinder`로 길이 20cm, 굵기 2mm의 줄을 만들고 위쪽 줄과 같은 `blue` 재료를 입힙니다. 줄의 중심을 처음 위치에서 26cm 아래에 놓습니다. `furin.addChild(innerString)`을 사용해 이 줄도 `furin` 안에 넣습니다. 이 줄은 유리 종과 아래쪽 추, 종이 소원지를 이어 줍니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-inner-string.swift,
+                    previousFile: furin-factory-glass-bell.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 `FurinFactory.make()`를 사용하지 않았기 때문에 화면에 안쪽 줄이 나타나지 않는 것이 정상입니다.
+            }
+
+            @Step {
+                `furin.addChild(innerString)` 아래에 주황색 추를 추가합니다. `generateSphere`로 반지름 1.2cm의 작은 공을 만들고 `orange` 재료를 입힙니다. 처음 위치에서 29cm 아래에 놓은 뒤 `furin.addChild(clapper)`를 사용해 `furin` 안에 넣습니다. `clapper`는 바람이 불 때 유리 종을 두드리는 안쪽 추를 뜻합니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-clapper.swift,
+                    previousFile: furin-factory-inner-string.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. `orange` 재료를 사용했으므로 해당 경고가 사라집니다. 아직 `FurinFactory.make()`를 사용하지 않았기 때문에 화면에 주황색 구가 나타나지 않는 것이 정상입니다.
+            }
+
+            @Step {
+                `furin.addChild(clapper)` 아래에 종이 소원지를 추가합니다. 먼저 `paper`를 처음 위치에서 43cm 아래로 옮깁니다. 상자 모양을 만드는 `generateBox`로 너비 6.2cm, 높이 17cm, 두께 3mm의 얇은 종이를 만들고 `paperColor`를 입힙니다. 눈에 보이는 종이 모양인 `paperShape`를 빈 상자 역할의 `paper` 안에 넣고, `paper`를 다시 전체 후우링 안에 넣습니다. 이렇게 둘로 나누면 나중에 종이만 따로 흔들 수 있습니다.
+
+                @Code(
+                    name: "FurinFactory.swift",
+                    file: furin-factory-paper.swift,
+                    previousFile: furin-factory-clapper.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. `paperColor`까지 사용했으므로 재료와 관련된 경고가 모두 사라져야 합니다. 아직 `FurinFactory.make()`를 사용하지 않았기 때문에 화면에 후우링이 나타나지 않는 것이 정상입니다.
             }
         }
     }
 
-
-    @Section(title: "기본 메시로 후우링 만들고 고정하기") {
+    @Section(title: "완성한 후우링 배치하기") {
         @ContentAndMedia {
-            외부 USDZ 파일 없이 `generateCylinder`, `generateSphere`, `generateBox`와 `SimpleMaterial`만으로 줄, 유리 종, 추, 종이 소원지를 만듭니다. 모든 길이는 RealityKit의 미터 단위입니다.
+            후우링 모양은 완성됐지만 아직 AR 화면에는 나타나지 않습니다. 이제 앞에서 찾은 현실 위치에 기준점을 만들고, `FurinFactory`에서 가져온 후우링을 그곳에 놓습니다.
 
-            @Image(source: "furin-parts.svg", alt: "원기둥 줄, 구형 유리 종, 구형 추, 상자형 종이로 조립한 후우링")
+            @Image(source: "raycast-result.svg", alt: "화면을 누른 위치에서 찾은 현실 공간의 기준점")
         }
 
         @Steps {
             @Step {
-                `Coordinator`의 창문 탐색 메서드 아래에 `makeFurin()`을 먼저 추가합니다. 생성한 `ModelEntity`들의 로컬 Y를 음수로 내려, anchor가 매다는 줄의 꼭대기가 되도록 구성합니다. 유리 종은 반투명한 청색 `SimpleMaterial`을 입힌 구를 Y축으로 0.9배 눌러 만듭니다. 위쪽 줄은 높이 10cm, 안쪽 줄은 높이 20cm로 만들어 유리 종부터 종이 소원지까지 끊어져 보이지 않게 연결합니다. 추는 작은 주황색 구, 소원지는 깊이 3mm의 얇은 상자입니다. 종이 자체를 별도 `Entity`에 넣어 나중에 몸체보다 빠르게 회전시킬 수 있습니다.
+                `ARViewContainer.swift`를 열고 `Coordinator` 안의 `findTopY(of:)` 아래에 `addFurin(at:to:)` 함수를 추가합니다. `AnchorEntity`는 후우링을 놓을 현실 위치를 기억하는 기준점입니다. `FurinFactory.make()`로 완성한 후우링을 가져와 기준점 안에 넣고, 그 기준점을 AR 화면에 추가합니다. `paper`는 나중에 종이 소원지만 따로 흔들 때 사용합니다.
 
-                @Code(name: "ARViewContainer.swift — Coordinator 내부에 추가", file: make-furin.swift)
+                @Code(
+                    name: "ARViewContainer.swift",
+                    file: arview-add-furin-function.swift,
+                    previousFile: arview-window-top.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 지금은 `paper`를 아직 사용하지 않아 경고가 나올 수 있습니다. `addFurin(at:to:)`도 아직 사용하지 않았기 때문에 화면에 후우링이 나타나지 않는 것이 정상입니다.
             }
 
             @Step {
-                `makeFurin()` 아래에 `addFurin(at:facing:to:)`를 추가합니다. `AnchorEntity(world:)`는 AR 세션의 월드 좌표에 부모 anchor를 만들고, 후우링의 모든 부품은 그 자식이 됩니다. 따라서 카메라가 이동해도 후우링은 현실 공간의 같은 위치에 남습니다.
+                `handleTap(_:)`으로 돌아가 마지막의 `print("후우링을 매달 위치:", hangingPosition)`를 `addFurin(at:to:)`로 바꿉니다. `hangingPosition`에는 앞에서 찾은 현실 위치가 들어 있고, `arView`는 후우링을 보여 줄 AR 화면입니다. 이제 화면을 누를 때마다 찾은 위치에 후우링이 만들어집니다.
 
-                변수명은 처음부터 `furinParts`, `furin`, `paper`로 통일합니다. `atan2`로 카메라까지의 방향을 Y축 회전각으로 바꿔 소원지 정면이 처음 배치한 사용자를 향하도록 합니다. 이 회전은 이후 흔들림의 기준 회전으로도 사용합니다.
+                @Code(
+                    name: "ARViewContainer.swift",
+                    file: arview-call-add-furin.swift,
+                    previousFile: arview-add-furin-function.swift
+                )
 
-                @Code(name: "ARViewContainer.swift — makeFurin 다음에 추가", file: place-anchor.swift)
-            }
-
-            @Step {
-                앞 Section에서 넣은 임시 `print`를 지우고, 같은 자리에 아래 호출과 성공 haptic을 추가합니다. `makeFurin`과 `addFurin`을 이미 정의했기 때문에 이 단계도 바로 컴파일됩니다. **확인:** 실제 기기에서 창문이나 벽을 충분히 탐색하고 탭합니다. 파란 유리 종과 흰 종이가 면 앞에 나타나고, 창문 분류에 성공했으면 누른 높이와 관계없이 감지된 창문 상단으로 이동해야 합니다.
-
-                @Code(name: "ARViewContainer.swift — handleTap 위치 보정 다음에 추가", file: add-furin-call.swift)
-
-                오브젝트가 반대 방향을 보인다면 모델의 정면 축과 회전 부호를 확인합니다. 이 튜토리얼의 얇은 `generateBox`는 양면이 거의 같지만, 한쪽에 텍스처를 추가했다면 `angle + .pi` 또는 `-angle`이 필요할 수 있습니다. 배치가 벽에 묻히면 카메라 방향 보정값 `0.025`를 `0.04`처럼 조금 늘립니다.
+                **확인:** 실제 기기에서 창문이나 벽을 천천히 비춘 뒤 화면을 누릅니다. 누른 위치에 후우링이 나타나고 기기를 움직여도 같은 현실 위치에 남아 있으면 성공입니다.
             }
         }
     }
 
-
-    @Section(title: "바람에 흔들리는 애니메이션 만들기") {
+    @Section(title: "후우링 움직이기") {
         @ContentAndMedia {
-            RealityKit은 각 렌더 프레임마다 `SceneEvents.Update`를 보냅니다. `Combine` 구독을 유지하면서 누적 시간에 사인 함수를 적용하면 반복이 끊기지 않는 부드러운 흔들림을 만들 수 있습니다.
+            이제 배치한 후우링과 종이 소원지를 흔들리게 만듭니다. 움직임을 만드는 코드는 길어질 수 있으므로 새 파일인 `FurinAnimator.swift`에 따로 모아 둡니다.
 
-            @Image(source: "furin-animation.svg", alt: "후우링 몸체와 종이 소원지가 서로 다른 속도와 각도로 흔들리는 애니메이션 흐름")
+            @Image(source: "furin-animation.svg", alt: "후우링 몸체와 종이 소원지가 서로 다른 속도로 흔들리는 모습")
         }
 
         @Steps {
             @Step {
-                `Coordinator` 맨 위에 애니메이션 정보 구조체, 배열, 시간, subscription을 추가합니다. 기존 `start(using:)`를 구독을 만드는 버전으로 교체하고, 구조체 맨 아래에 `animateFurins(deltaTime:)`를 추가합니다.
-
-                `animationSubscription`을 프로퍼티로 보관하지 않으면 생성 직후 구독이 해제되어 업데이트가 멈춥니다. `[weak self]`는 scene subscription과 coordinator 사이의 강한 순환 참조를 피합니다. 몸체는 Z축으로 작게, 종이는 Y축으로 더 빠르고 크게 움직입니다.
-
-                @Code(name: "ARViewContainer.swift — Coordinator 프로퍼티, start, 마지막 메서드", file: animate-furin.swift)
+                Xcode 왼쪽의 파일 목록에서 앱 파일이 들어 있는 그룹을 선택합니다. 위쪽 메뉴에서 **File > New > File > Swift File**을 누르고 파일 이름을 `FurinAnimator.swift`로 입력합니다.
             }
 
             @Step {
-                `addFurin`의 `arView.scene.addAnchor(anchor)` 다음에 아래 코드를 추가해 새 후우링을 애니메이션 배열에 등록합니다. 앞 Section에서 이미 `furinParts`, `furin`, `paper`로 변수명을 통일했으므로 그대로 연결됩니다. `randomOffset`이 여러 후우링의 위상을 다르게 만들어 모두 똑같이 흔들리는 인공적인 느낌을 줄입니다.
+                새 파일에 아래 코드를 작성합니다. `FurinAnimationInfo`는 후우링 하나를 움직이는 데 필요한 정보를 한곳에 모아 둡니다. `furins`에는 화면에 놓은 모든 후우링이 들어갑니다. `animationTime`은 움직임이 시작된 뒤 흐른 시간을 저장합니다. `animationSubscription`은 RealityKit이 화면을 새로 그린다는 알림을 계속 받을 수 있게 붙잡아 두는 값입니다.
 
-                @Code(name: "ARViewContainer.swift — addFurin에서 anchor 추가 다음", file: register-animation.swift)
+                @Code(
+                    name: "FurinAnimator.swift",
+                    file: furin-animator-base.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 후우링을 목록에 넣거나 움직이는 함수를 만들지 않았으므로 화면의 후우링은 움직이지 않습니다.
             }
 
             @Step {
-                `sin`은 항상 -1과 1 사이를 왕복합니다. `animationTime * 1.35`는 속도, `* 0.055`는 몸체의 최대 회전 라디안입니다. 종이는 속도 `2.1`, 진폭 `0.24`를 사용해 바람을 더 크게 받는 느낌을 냅니다. `originalRotation * 흔들림 회전` 순서를 지켜 카메라를 향한 기준 방향을 잃지 않게 합니다.
+                `animationSubscription` 아래에 `add(furin:paper:)` 함수를 추가합니다. 이 함수는 후우링 몸체, 종이 소원지, 흔들리기 전 방향을 하나로 묶어 `furins` 목록에 저장합니다. `randomOffset`에는 0부터 한 바퀴를 뜻하는 `2π` 사이의 무작위 숫자가 들어갑니다. 이 숫자 덕분에 여러 후우링이 똑같은 박자로 움직이지 않습니다.
 
-                **확인:** 같은 창문에 여러 번 탭합니다. 각 후우링이 현실 위치에 고정된 채 서로 다른 박자로 좌우로 흔들리고, 종이 소원지가 몸체보다 빠르게 펄럭이면 성공입니다.
+                @Code(
+                    name: "FurinAnimator.swift",
+                    file: furin-animator-register.swift,
+                    previousFile: furin-animator-base.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 `add(furin:paper:)`를 사용하지 않았고 실제 움직임을 계산하는 코드도 없으므로 후우링은 움직이지 않습니다.
+            }
+
+            @Step {
+                `ARViewContainer.swift`를 열고 `Coordinator`의 시작 부분에 움직임 관리자 `furinAnimator`를 추가합니다. `private let`으로 하나만 만든 뒤 계속 사용해야 저장해 둔 후우링 목록이 사라지지 않습니다. 코드는 `private weak var arView` 바로 위에 넣습니다.
+
+                @Code(
+                    name: "ARViewContainer.swift",
+                    file: arview-furin-animator.swift,
+                    previousFile: arview-call-add-furin.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 `furinAnimator.add(furin:paper:)`를 사용하지 않았으므로 후우링은 움직임 목록에 들어가지 않습니다.
+            }
+
+            @Step {
+                같은 파일의 `addFurin(at:to:)` 함수로 이동합니다. `arView.scene.addAnchor(anchor)` 아래에서 `furinAnimator.add(furin:paper:)`를 사용합니다. 그러면 방금 놓은 후우링 몸체와 종이 소원지가 움직임 목록에 들어갑니다. `Coordinator`가 같은 `furinAnimator`를 계속 가지고 있으므로 화면을 여러 번 눌러 만든 후우링도 목록에 하나씩 쌓입니다.
+
+                @Code(
+                    name: "ARViewContainer.swift",
+                    file: arview-register-furin-animation.swift,
+                    previousFile: arview-furin-animator.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 이제 새 후우링은 목록에 들어가지만, 아직 얼마나 기울일지 계산하는 함수가 없어 움직이지 않습니다.
+            }
+
+            @Step {
+                `FurinAnimator.swift`로 돌아가 `add(furin:paper:)` 아래에 `update(deltaTime:)` 함수를 추가합니다. `deltaTime`은 바로 전 화면을 그린 뒤 흐른 짧은 시간입니다. 이 값을 `animationTime`에 계속 더하면 움직임이 시작된 뒤의 전체 시간을 알 수 있습니다. `for` 반복문으로 목록에 있는 후우링을 하나씩 꺼냅니다. `sin`은 -1에서 1 사이를 계속 오가므로 후우링을 자연스럽게 좌우로 흔들 수 있습니다. `1.35`는 움직이는 속도이고 `0.055`는 기울어지는 크기입니다. Z축을 기준으로 돌리면 후우링 몸체가 좌우로 기울어집니다.
+
+                @Code(
+                    name: "FurinAnimator.swift",
+                    file: furin-animator-body.swift,
+                    previousFile: furin-animator-register.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 흔들림을 계산하는 함수는 생겼지만 아직 RealityKit이 이 함수를 실행하지 않으므로 후우링은 움직이지 않습니다.
+            }
+
+            @Step {
+                같은 `for` 반복문 안에서 몸체를 기울이는 코드 아래에 종이 소원지의 움직임을 추가합니다. 종이는 몸체보다 빠른 `2.1`의 속도와 더 큰 `0.24`의 각도를 사용합니다. Y축을 기준으로 돌리면 얇은 종이가 좌우로 펄럭이는 것처럼 보입니다. 같은 `randomOffset`을 사용하므로 후우링마다 서로 다른 박자로 움직입니다.
+
+                @Code(
+                    name: "FurinAnimator.swift",
+                    file: furin-animator-paper.swift,
+                    previousFile: furin-animator-body.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 종이 움직임도 만들었지만 아직 화면을 새로 그릴 때마다 함수를 실행하도록 연결하지 않았으므로 후우링은 움직이지 않습니다.
+            }
+
+            @Step {
+                `animationSubscription` 아래에 `start(in:)` 함수를 추가합니다. `SceneEvents.Update`는 RealityKit이 새 화면을 그릴 때마다 보내는 알림입니다. 알림을 받을 때마다 지난 시간인 `event.deltaTime`을 `update(deltaTime:)`에 전달합니다. 이 연결을 `animationSubscription`에 저장해야 움직임이 멈추지 않습니다. `[weak self]`는 `FurinAnimator`가 더 이상 필요 없을 때 메모리에서 안전하게 사라질 수 있도록 돕는 코드입니다.
+
+                @Code(
+                    name: "FurinAnimator.swift",
+                    file: furin-animator-subscription.swift,
+                    previousFile: furin-animator-paper.swift
+                )
+
+                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 화면 갱신 알림을 받는 함수는 완성됐지만, 아직 `ARViewContainer`에서 `start(in:)`을 사용하지 않았으므로 후우링은 움직이지 않습니다.
+            }
+
+            @Step {
+                `ARViewContainer.swift`를 열고 `Coordinator.start(using:)`의 `self.arView = arView` 아래에 `furinAnimator.start(in: arView.scene)`을 추가합니다. `makeUIView(context:)`가 이미 `Coordinator.start(using:)`을 실행하고 있으므로 AR 화면이 만들어질 때 후우링 움직임도 함께 시작됩니다.
+
+                @Code(
+                    name: "ARViewContainer.swift",
+                    file: arview-start-furin-animation.swift,
+                    previousFile: arview-register-furin-animation.swift
+                )
+
+                **확인:** 실제 기기에서 창문이나 벽을 찾은 뒤 화면을 여러 번 누릅니다. 후우링 몸체가 천천히 좌우로 기울고 종이 소원지가 더 빠르고 크게 펄럭이면 성공입니다. 여러 후우링이 서로 다른 박자로 움직이는지도 확인합니다.
+            }
+        }
+    }
+
+    @Section(title: "최종 코드 확인하기") {
+        @ContentAndMedia {
+            지금까지 작성한 네 파일의 완성된 코드를 확인합니다. 이번에는 앞 단계와 비교하지 않고 파일 전체를 보여줍니다. Xcode에 작성한 코드와 하나씩 비교하면서 빠진 줄이나 잘못 놓인 중괄호가 없는지 확인합니다.
+
+            @Image(source: "device-result.svg", alt: "AR 화면의 창문에 완성된 후우링이 매달려 흔들리는 모습")
+        }
+
+        @Steps {
+            @Step {
+                먼저 `ContentView.swift`를 확인합니다. `ARViewContainer()` 아래에 `.ignoresSafeArea()`가 있어야 카메라 영상이 화면 전체에 표시됩니다.
+
+                @Code(
+                    name: "ContentView.swift 최종본",
+                    file: content-view-ar.swift
+                )
+            }
+
+            @Step {
+                다음으로 `ARViewContainer.swift`를 확인합니다. AR 카메라 만들기, 창문이나 벽 찾기, 화면 터치 처리, 창문 위쪽 계산, 후우링 배치, 움직임 관리자 연결 코드가 모두 있어야 합니다.
+
+                @Code(
+                    name: "ARViewContainer.swift 최종본",
+                    file: arview-start-furin-animation.swift
+                )
+            }
+
+            @Step {
+                `FurinFactory.swift`를 확인합니다. 네 가지 색과 재질, 위쪽 줄, 유리 종, 안쪽 줄, 추, 종이 소원지가 모두 `furin` 안에 들어 있어야 합니다.
+
+                @Code(
+                    name: "FurinFactory.swift 최종본",
+                    file: furin-factory-paper.swift
+                )
+            }
+
+            @Step {
+                마지막으로 `FurinAnimator.swift`를 확인합니다. 후우링을 목록에 넣는 코드, 몸체와 종이를 움직이는 계산, RealityKit이 화면을 새로 그릴 때마다 실행하는 코드가 모두 있어야 합니다. 네 파일을 비교한 뒤 `Command-B`를 누릅니다. 실제 기기에서 후우링을 여러 개 놓고 서로 다른 박자로 흔들리는지 확인합니다.
+
+                @Code(
+                    name: "FurinAnimator.swift 최종본",
+                    file: furin-animator-subscription.swift
+                )
             }
         }
     }

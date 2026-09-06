@@ -1,0 +1,75 @@
+//
+//  ARViewContainer.swift
+//  WindGarden
+//
+//  Created by unsistty on 8/4/26.
+//
+
+import ARKit
+import Combine
+import RealityKit
+import SwiftUI
+
+struct ARViewContainer: UIViewRepresentable {
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> ARView {
+        let arView = ARView(
+            frame: .zero,
+            cameraMode: .ar,
+            automaticallyConfigureSession: false
+        )
+
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = [.vertical]
+        configuration.environmentTexturing = .automatic
+
+        arView.session.run(configuration)
+
+        // 사용자가 수직면을 찾도록 안내합니다.
+        let coachingOverlay = ARCoachingOverlayView()
+        coachingOverlay.session = arView.session
+        coachingOverlay.goal = .verticalPlane
+        coachingOverlay.activatesAutomatically = true
+        coachingOverlay.frame = arView.bounds
+        coachingOverlay.autoresizingMask = [
+            .flexibleWidth,
+            .flexibleHeight
+        ]
+
+        arView.addSubview(coachingOverlay)
+
+        // 화면을 터치하면 Coordinator의 handleTap 메서드를 실행합니다.
+        let tapGesture = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handleTap(_:))
+        )
+        arView.addGestureRecognizer(tapGesture)
+        context.coordinator.start(using: arView)
+
+        return arView
+    }
+
+    func updateUIView(_ uiView: ARView, context: Context) {
+    }
+
+    final class Coordinator: NSObject {
+        private weak var arView: ARView?
+
+        func start(using arView: ARView) {
+            self.arView = arView
+        }
+
+        @objc
+        func handleTap(_ gesture: UITapGestureRecognizer) {
+            guard let arView else {
+                return
+            }
+
+            let touchPoint = gesture.location(in: arView)
+            print("터치한 화면 좌표:", touchPoint)
+        }
+    }
+}

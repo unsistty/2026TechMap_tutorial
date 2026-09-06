@@ -1,3 +1,10 @@
+//
+//  ARViewContainer.swift
+//  WindGarden
+//
+//  Created by unsistty on 8/4/26.
+//
+
 import ARKit
 import Combine
 import RealityKit
@@ -21,4 +28,3 @@ struct ARViewContainer: UIViewRepresentable {
 
     func updateUIView(_ uiView: ARView, context: Context) {}
 }
-
