@@ -164,7 +164,7 @@
 
         @Steps {
             @Step {
-                AR 화면의 터치를 처리할 중간 관리자 `Coordinator`를 만듭니다. `makeCoordinator()`는 이 관리자를 하나 생성합니다. `start(using:)`은 터치 계산에 필요한 `ARView`를 기억해 둡니다. `handleTap(_:)`은 화면을 눌렀을 때 실행될 함수이며, 지금은 내용을 비워 둡니다.
+                SwiftUI와 UIKit 사이에서 터치 이벤트를 전달할 `Coordinator`를 만듭니다. `Coordinator`는 이벤트를 직접 처리하지 않고 `FurinPlacementController`로 전달합니다. `FurinPlacementController`의 `start(using:)`은 터치 계산에 필요한 `ARView`를 기억해 두고, `handleTap(_:)`은 전달받은 터치를 처리합니다. 지금은 실제 처리 내용을 비워 둡니다.
 
                 @Code(
                     name: "ARViewContainer.swift",
@@ -200,7 +200,7 @@
             }
 
             @Step {
-                `Coordinator` 안에 `findVerticalSurface(at:in:)` 함수를 추가합니다. 이 함수는 화면을 누른 곳에서 현실 공간으로 보이지 않는 선을 보내 창문이나 벽을 찾습니다. 먼저 창문을 찾고, 창문이 없으면 일반 벽을 사용합니다. 인식한 벽도 없다면 ARKit이 예상한 위치를 사용합니다. 아직 `handleTap(_:)`은 바꾸지 않습니다.
+                `FurinPlacementController` 안에 `findVerticalSurface(at:in:)` 함수를 추가합니다. 이 함수는 화면을 누른 곳에서 현실 공간으로 보이지 않는 선을 보내 창문이나 벽을 찾습니다. 먼저 창문을 찾고, 창문이 없으면 일반 벽을 사용합니다. 인식한 벽도 없다면 ARKit이 예상한 위치를 사용합니다. 아직 `handleTap(_:)`은 바꾸지 않습니다.
 
                 @Code(
                     name: "ARViewContainer.swift",
@@ -212,7 +212,7 @@
             }
 
             @Step {
-                이제 `handleTap(_:)`에서 `findVerticalSurface(at:in:)`을 사용합니다. 창문이나 벽을 찾지 못하면 오류 진동을 울리고 함수를 끝냅니다. 위치를 찾았다면 `worldTransform.columns.3`에서 현실 공간의 X, Y, Z 값을 꺼냅니다. 단위는 미터이며, 결과는 Xcode 아래쪽의 출력 창에서 확인합니다.
+                이제 `handleTap(_:)`에서 `findVerticalSurface(at:in:)`을 사용합니다. 창문이나 벽을 찾지 못하면 오류 진동을 울리고 함수를 끝냅니다. 위치를 찾았다면 `Transform(matrix:)`로 레이캐스트 결과를 RealityKit의 `Transform`으로 바꾸고 `translation`에서 현실 공간의 X, Y, Z 값을 가져옵니다. 단위는 미터이며, 결과는 Xcode 아래쪽의 출력 창에서 확인합니다.
 
                 @Code(
                     name: "ARViewContainer.swift",
@@ -234,31 +234,19 @@
 
         @Steps {
             @Step {
-                먼저 `Coordinator` 안에 `findTopY(of:)` 함수의 틀을 만듭니다. `window.geometry.vertices`에는 ARKit이 찾은 창문 모양의 점들이 들어 있습니다. 점이 하나도 없다면 높이를 구할 수 없으므로 `nil`을 돌려줍니다. 아직 점의 높이를 비교하지 않기 때문에 함수 마지막에서도 임시로 `nil`을 돌려줍니다.
-
-                @Code(
-                    name: "ARViewContainer.swift",
-                    file: arview-window-vertices.swift,
-                    previousFile: arview-raycast.swift
-                )
-
-                **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 아직 `findTopY(of:)`을 사용하지 않으므로 화면을 누르면 이전과 같이 `배치할 월드 좌표`가 나옵니다.
-            }
-
-            @Step {
-                이제 창문을 이루는 점을 하나씩 확인합니다. 처음에는 각 점의 위치가 창문을 기준으로 저장되어 있습니다. `window.transform`을 곱하면 앱 전체의 현실 공간을 기준으로 한 위치로 바뀝니다. 바꾼 점들의 Y 값을 비교해 가장 큰 값을 `highestY`에 저장하고, 마지막에 그 값을 돌려줍니다.
+                `FurinPlacementController` 안에 `findTopY(of:)` 함수를 추가합니다. `window.geometry.vertices`에는 ARKit이 찾은 창문 모양의 점들이 들어 있습니다. `map`으로 각 점에 `window.transform`을 곱해 현실 공간 좌표로 바꾸고 Y 값만 모은 뒤, `max()`로 가장 높은 값을 찾습니다. 점이 없다면 `max()`가 자동으로 `nil`을 돌려줍니다.
 
                 @Code(
                     name: "ARViewContainer.swift",
                     file: arview-find-top-y.swift,
-                    previousFile: arview-window-vertices.swift
+                    previousFile: arview-raycast.swift
                 )
 
                 **확인:** `Command-B`를 눌렀을 때 오류가 없어야 합니다. 함수는 완성됐지만 아직 `handleTap(_:)`에서 사용하지 않았으므로 앱의 동작은 이전과 같습니다.
             }
 
             @Step {
-                마지막으로 `handleTap(_:)`에서 위치 변수의 이름을 `hangingPosition`으로 바꿉니다. Y 값을 나중에 바꿀 수 있도록 `let` 대신 `var`를 사용합니다. 찾은 면이 `.window`, 즉 창문이라면 `findTopY(of:)`을 실행하고 가장 높은 값을 `hangingPosition.y`에 넣습니다. 일반 벽이라면 사용자가 누른 높이를 그대로 사용합니다.
+                마지막으로 `handleTap(_:)`에서 위치 변수의 이름을 `hangingPosition`으로 바꿉니다. `Transform.translation`의 Y 값을 나중에 바꿀 수 있도록 `let` 대신 `var`를 사용합니다. 찾은 면이 `.window`, 즉 창문이라면 `findTopY(of:)`을 실행하고 가장 높은 값을 `hangingPosition.y`에 넣습니다. 일반 벽이라면 사용자가 누른 높이를 그대로 사용합니다.
 
                 @Code(
                     name: "ARViewContainer.swift",

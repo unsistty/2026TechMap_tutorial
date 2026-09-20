@@ -13,7 +13,6 @@ WindGarden/
         ├── WindGardenTutorials.tutorial
         ├── set-up-windgarden-ar.tutorial
         ├── build-and-animate-furin.tutorial
-        ├── verify-windgarden.tutorial
         └── Resources/
             ├── *.swift
             ├── pages-workflow.yml

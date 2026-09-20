@@ -25,7 +25,6 @@ struct ARViewContainer: UIViewRepresentable {
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = [.vertical]
         configuration.environmentTexturing = .automatic
-
         arView.session.run(configuration)
 
         // 사용자가 수직면을 찾도록 안내합니다.
@@ -52,17 +51,28 @@ struct ARViewContainer: UIViewRepresentable {
         return arView
     }
 
-    func updateUIView(_ uiView: ARView, context: Context) {
-    }
+    func updateUIView(_ uiView: ARView, context: Context) {}
 
     final class Coordinator: NSObject {
+        private let placementController = FurinPlacementController()
+
+        func start(using arView: ARView) {
+            placementController.start(using: arView)
+        }
+
+        @objc
+        func handleTap(_ gesture: UITapGestureRecognizer) {
+            placementController.handleTap(gesture)
+        }
+    }
+
+    private final class FurinPlacementController {
         private weak var arView: ARView?
 
         func start(using arView: ARView) {
             self.arView = arView
         }
 
-        @objc
         func handleTap(_ gesture: UITapGestureRecognizer) {
             guard let arView else {
                 return
@@ -79,12 +89,9 @@ struct ARViewContainer: UIViewRepresentable {
                 return
             }
 
-            let positionColumn = raycastResult.worldTransform.columns.3
-            var hangingPosition = SIMD3<Float>(
-                positionColumn.x,
-                positionColumn.y,
-                positionColumn.z
-            )
+            var hangingPosition = Transform(
+                matrix: raycastResult.worldTransform
+            ).translation
 
             // 찾은 면이 창문이면 창문의 가장 높은 위치를 사용합니다.
             if let window = raycastResult.anchor as? ARPlaneAnchor,
@@ -127,34 +134,9 @@ struct ARViewContainer: UIViewRepresentable {
         }
 
         private func findTopY(of window: ARPlaneAnchor) -> Float? {
-            let vertices = window.geometry.vertices
-
-            guard !vertices.isEmpty else {
-                return nil
-            }
-
-            var highestY: Float?
-
-            for vertex in vertices {
-                let localPoint = SIMD4<Float>(
-                    vertex.x,
-                    vertex.y,
-                    vertex.z,
-                    1
-                )
-
-                let worldPoint = window.transform * localPoint
-
-                if let currentHighestY = highestY {
-                    if worldPoint.y > currentHighestY {
-                        highestY = worldPoint.y
-                    }
-                } else {
-                    highestY = worldPoint.y
-                }
-            }
-
-            return highestY
+            window.geometry.vertices
+                .map { (window.transform * SIMD4<Float>($0, 1)).y }
+                .max()
         }
 
         // MARK: - 후우링 배치하기
@@ -167,12 +149,10 @@ struct ARViewContainer: UIViewRepresentable {
             let anchor = AnchorEntity(world: position)
 
             // FurinFactory에서 완성한 후우링을 가져옵니다.
-            let furinParts = FurinFactory.make()
-            let furin = furinParts.furin
-            let paper = furinParts.paper
+            let parts = FurinFactory.make()
 
             // 후우링을 현실 위치의 기준점에 연결합니다.
-            anchor.addChild(furin)
+            anchor.addChild(parts.furin)
 
             // 기준점을 AR 화면에 추가합니다.
             arView.scene.addAnchor(anchor)

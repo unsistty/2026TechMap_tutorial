@@ -25,7 +25,6 @@ struct ARViewContainer: UIViewRepresentable {
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = [.vertical]
         configuration.environmentTexturing = .automatic
-
         arView.session.run(configuration)
 
         // 사용자가 수직면을 찾도록 안내합니다.
@@ -52,17 +51,28 @@ struct ARViewContainer: UIViewRepresentable {
         return arView
     }
 
-    func updateUIView(_ uiView: ARView, context: Context) {
-    }
+    func updateUIView(_ uiView: ARView, context: Context) {}
 
     final class Coordinator: NSObject {
+        private let placementController = FurinPlacementController()
+
+        func start(using arView: ARView) {
+            placementController.start(using: arView)
+        }
+
+        @objc
+        func handleTap(_ gesture: UITapGestureRecognizer) {
+            placementController.handleTap(gesture)
+        }
+    }
+
+    private final class FurinPlacementController {
         private weak var arView: ARView?
 
         func start(using arView: ARView) {
             self.arView = arView
         }
 
-        @objc
         func handleTap(_ gesture: UITapGestureRecognizer) {
             guard let arView else {
                 return
@@ -79,12 +89,9 @@ struct ARViewContainer: UIViewRepresentable {
                 return
             }
 
-            let positionColumn = raycastResult.worldTransform.columns.3
-            let position = SIMD3<Float>(
-                positionColumn.x,
-                positionColumn.y,
-                positionColumn.z
-            )
+            let position = Transform(
+                matrix: raycastResult.worldTransform
+            ).translation
 
             print("배치할 월드 좌표:", position)
         }

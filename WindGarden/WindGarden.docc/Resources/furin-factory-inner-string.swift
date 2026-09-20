@@ -1,9 +1,14 @@
 import RealityKit
 import UIKit
 
-struct FurinFactory {
+struct FurinParts {
+    let furin: Entity
+    let paper: Entity
+}
 
-    static func make() -> (furin: Entity, paper: Entity) {
+enum FurinFactory {
+
+    static func make() -> FurinParts {
         let furin = Entity()
         let paper = Entity()
 
@@ -84,6 +89,6 @@ struct FurinFactory {
         // 안쪽 줄을 후우링에 넣습니다.
         furin.addChild(innerString)
 
-        return (furin, paper)
+        return FurinParts(furin: furin, paper: paper)
     }
 }

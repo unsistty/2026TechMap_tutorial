@@ -2,7 +2,7 @@
     @Intro(title: "현실의 창문을 작은 정원으로 바꾸기") {
         ARKit으로 창문이나 벽을 찾고, RealityKit으로 그곳에 후우링을 매답니다. SwiftUI로는 앱 화면과 안내 문구를 만듭니다.
 
-        **예상 소요 시간:** 90분
+        **예상 소요 시간:** 75분
 
         **미리 알면 좋은 내용:** Swift의 기본 문법과 SwiftUI로 간단한 화면을 만드는 방법을 알면 좋습니다. Xcode에서 iOS 앱을 한 번 만들어 봤다면 더 쉽게 따라갈 수 있습니다. ARKit과 RealityKit은 처음이어도 괜찮습니다.
 
@@ -25,11 +25,4 @@
         @TutorialReference(tutorial: "doc:build-and-animate-furin")
     }
 
-    @Chapter(name: "완성 앱 검증하기") {
-        SwiftUI 안내 화면을 더한 뒤 실제 기기에서 앱을 확인하고 DocC 문서도 점검합니다.
-
-        @Image(source: "device-result.svg", alt: "SwiftUI 안내 카드와 AR 후우링이 함께 보이는 완성 화면")
-
-        @TutorialReference(tutorial: "doc:verify-windgarden")
-    }
 }

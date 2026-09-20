@@ -21,7 +21,6 @@ struct ARViewContainer: UIViewRepresentable {
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = [.vertical]
         configuration.environmentTexturing = .automatic
-
         arView.session.run(configuration)
 
         // 사용자가 수직면을 찾도록 안내합니다.
@@ -40,6 +39,5 @@ struct ARViewContainer: UIViewRepresentable {
         return arView
     }
 
-    func updateUIView(_ uiView: ARView, context: Context) {
-    }
+    func updateUIView(_ uiView: ARView, context: Context) {}
 }
