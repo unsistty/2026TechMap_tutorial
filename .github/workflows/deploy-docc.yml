@@ -46,6 +46,7 @@ jobs:
             --output-path .build/site \
             --hosting-base-path "$REPOSITORY_NAME"
           printf '{}\n' > .build/site/theme-settings.json
+          cp .github/pages-index.html .build/site/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
