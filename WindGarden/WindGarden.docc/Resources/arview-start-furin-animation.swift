@@ -6,7 +6,6 @@
 //
 
 import ARKit
-import Combine
 import RealityKit
 import SwiftUI
 
@@ -104,6 +103,16 @@ struct ARViewContainer: UIViewRepresentable {
                window.classification == .window,
                let topY = findTopY(of: window) {
                 hangingPosition.y = topY
+            }
+
+            // 후우링이 창문 안에 묻혀 보이지 않게 카메라 쪽으로 조금 당깁니다.
+            let cameraPosition = arView.cameraTransform.translation
+            var cameraDirection = cameraPosition - hangingPosition
+            cameraDirection.y = 0
+
+            if simd_length(cameraDirection) > 0.01 {
+                cameraDirection = simd_normalize(cameraDirection)
+                hangingPosition += cameraDirection * 0.025
             }
 
             // 계산한 위치에 후우링을 추가합니다.

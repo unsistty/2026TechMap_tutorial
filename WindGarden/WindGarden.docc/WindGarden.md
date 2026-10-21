@@ -8,7 +8,7 @@ SwiftUI로 증강현실(AR) 앱을 만듭니다. 현실의 창문을 찾고, 그
 
 완성 프로젝트에서는 역할을 나눕니다. `ContentView.swift`는 AR 화면을 보여주고, `ARViewContainer.swift`의 `Coordinator`는 SwiftUI와 UIKit 사이에서 터치 이벤트를 전달합니다. `FurinPlacementController`는 현실 위치 탐색과 배치를 처리하고, `FurinFactory.swift`는 후우링 모양을 만들며, `FurinAnimator.swift`는 완성된 후우링을 흔듭니다.
 
-> Important: Xcode의 가상 기기인 iOS 시뮬레이터에서는 카메라와 공간 인식 기능을 확인할 수 없습니다. ARKit을 지원하는 실제 iPhone이나 iPad에서 실행해야 합니다.
+> Important: iOS 18 SDK를 포함한 Xcode와 iOS 18 이상이 설치된 ARKit 지원 기기가 필요합니다. Xcode의 가상 기기인 iOS 시뮬레이터에서는 카메라와 공간 인식 기능을 확인할 수 없습니다. ARKit을 지원하는 실제 iPhone이나 iPad에서 실행해야 합니다.
 
 ## 문서 목록
 

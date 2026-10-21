@@ -4,6 +4,8 @@
 
         **예상 소요 시간:** 75분
 
+        **준비물:** iOS 18 SDK를 포함한 Xcode와 iOS 18 이상이 설치된 ARKit 지원 iPhone 또는 iPad가 필요합니다. 창문으로 분류되지 않아도 벽을 인식하고 누른 높이에 후우링을 배치하면 정상입니다.
+
         **미리 알면 좋은 내용:** Swift의 기본 문법과 SwiftUI로 간단한 화면을 만드는 방법을 알면 좋습니다. Xcode에서 iOS 앱을 한 번 만들어 봤다면 더 쉽게 따라갈 수 있습니다. ARKit과 RealityKit은 처음이어도 괜찮습니다.
 
         @Image(source: "windgarden-hero.svg", alt: "네 칸 창문 앞에 푸른 후우링이 매달린 WindGarden 앱 완성 화면")
